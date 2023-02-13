@@ -55,10 +55,13 @@ route.post('/login', (req, res)=>{
                                 token:token,
                                 expires:moment().add(1, 'day').toDate(),
                                 user: user._id
+                            }).then(()=>{
+                                const userObj = {...user}
+                                delete userObj['pass']
+                                res.json({...userObj, token})
                             })
-                            const userObj = {...user}
-                            delete userObj['pass']
-                            res.json({...userObj, token})
+                                .catch(()=>res.raise('internal'))
+
                         }else{
                             res.status(401).json({code:401, message:'Wrong credentials'})
                         }
