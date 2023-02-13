@@ -1,21 +1,11 @@
 const route = require('express').Router()
-const exJson = require('express').json
 const db = require('../helpers/mongo')
 const bcrypt = require("bcrypt");
 const moment = require('moment')
 const crypto = require('crypto')
-route.get('/:username?', (req, res)=>{
+const {checkToken} = require("../helpers/auth");
 
-    if(req.params.username){
-        db.collection('user').findOne({username: req.params.username}, {projection: {pass:0}})
-            .then(user => res.json(user))
-            .catch(()=>res.status(500).json({code:500, message:'Internal server error', type:'internal'}))
-    }else{
-        res.status(400).json({code:400, message:'Username must be specified', type:'missing'})
-    }
-})
 
-route.use(exJson())
 route.post('/', (req, res)=>{
     bcrypt.hash(req.body.pass, 10, (err, hash)=>{
         if(err) {
@@ -71,26 +61,32 @@ route.post('/login', (req, res)=>{
             })
     }else if(req.headers['authorization']){
         const token = req.headers['authorization'].replace('Bearer ', '')
-        db.collection('session').findOne({token:token})
-            .then(session=>{
-                console.log(session)
-                console.log(session.expires)
-                console.log(moment().isBefore(moment(session.expires)))
-                if(session && moment().isBefore(moment(session.expires))){
-                    db.collection('user').findOne({_id:session.user}, {projection:{pass:0}})
-                        .then(user=>{
-                            res.json({...user, token:session.token})
-                        })
-                }else if(session){
-                    db.collection('session').deleteOne(session)
-                        .then(() => res.status(401).json({code:401, message:'Session Expired'}))
-                }else{
-                    res.status(401).json({code:401, message:'Wrong credential'})
-                }
-            }).catch(()=>res.raise('internal'))
+        checkToken(token).then(userId=>{
+            if(userId){
+                db.collection('user').findOne({_id: userId}, {projection: {pass: 0}})
+                    .then(user=>{
+                        if(user){
+                            res.json(user)
+                        }else{
+                            res.raise('internal')
+                        }
+                    })
+                    .catch(()=>res.raise('internal'))
+            }else{
+                res.status(401).json({code:401, message:'Unauthorized', type:'unauthorized'})
+            }
+        })
+
     }else{
         res.raise('internal')
     }
+})
+
+// TODO:Authorization check middleware
+route.get('/', (req, res)=>{
+        db.collection('user').findOne({username: req.user.username}, {projection: {pass:0}})
+            .then(user => res.json(user))
+            .catch(()=>res.status(500).json({code:500, message:'Internal server error', type:'internal'}))
 
 })
 module.exports = route
