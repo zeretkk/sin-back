@@ -9,7 +9,7 @@ route.get('/:username?', (req, res)=>{
     if(req.params.username){
         db.collection('user').findOne({username: req.params.username}, {projection: {pass:0}})
             .then(user => res.json(user))
-            .catch(err=>res.status(500).json({code:500, message:'Internal server error', type:'internal'}))
+            .catch(()=>res.status(500).json({code:500, message:'Internal server error', type:'internal'}))
     }else{
         res.status(400).json({code:400, message:'Username must be specified', type:'missing'})
     }
@@ -80,7 +80,7 @@ route.post('/login', (req, res)=>{
                         })
                 }else if(session){
                     db.collection('session').deleteOne(session)
-                        .then(r => res.status(401).json({code:401, message:'Session Expired'}))
+                        .then(() => res.status(401).json({code:401, message:'Session Expired'}))
                 }else{
                     res.status(401).json({code:401, message:'Wrong credential'})
                 }
