@@ -9,13 +9,14 @@ const {checkToken} = require("../helpers/auth");
 route.post('/', (req, res)=>{
     bcrypt.hash(req.body.pass, 10, (err, hash)=>{
         if(err) {
-            res.status(500).json({code: 500, message: 'Internal server error', type: 'internal'})
+            res.status(500).json({code: 500, message: 'Crypting error', type: 'internal'})
             return
         }
-        db.collection('user').insertOne({...req.body, pass:hash})
+        db.collection('user').insertOne({...req.body, pass:hash, status:'status here', comments:0,
+            posts:0, createdAt: moment().toDate()})
             .then(result=>{
                 if(result.acknowledged){
-                    res.json(result.insertedId)
+                    res.status(201).json({status:'created', id:result.insertedId})
                 }else{
                     res.status(500).json({code:500, message:'Internal server error', type:'internal'})
                 }
@@ -23,7 +24,9 @@ route.post('/', (req, res)=>{
             .catch(err=>{
                 if(err.code === 11000){
                     res.status(400).json({code:400, message:'Username must be unique', type:'unique'})
+                    return
                 }
+                res.status(500).json({code:500, message:'Internal server error', type:'internal'})
             })
     })
 })

@@ -2,9 +2,13 @@ const express = require('express')
 const userController = require('./controllers/user')
 const exception = require('./helpers/exceptions')
 const exJson = require("express").json
+const cors = require('cors');
 
 const app = express()
-const port = 3000
+const port = 3001
+
+app.use(exJson())
+app.use(cors())
 
 app.use((req, res, next)=>{
     res.raise=(code)=>{
@@ -12,7 +16,6 @@ app.use((req, res, next)=>{
     }
     next()
 })
-app.use(exJson())
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
