@@ -15,9 +15,12 @@ route.post('/', (req, res)=>{
             name: req.body.name,
             username: req.body.username,
             password: hash,
-            status:'status here',
-            comments:0,
-            posts:0,
+            bio:'',
+            cover:'',
+            volume:0,
+            sold:0,
+            followers:0,
+            links: [],
             createdAt: moment(moment.now()).toDate()
         }
         db.collection('user').insertOne(user)
@@ -39,7 +42,6 @@ route.post('/', (req, res)=>{
 })
 
 route.post('/login', async (req, res)=>{
-    console.log(req.body)
     if(req.body.username && req.body.password){
        const user = await db.collection('user').findOne({username:req.body.username})
         if(user){
@@ -64,13 +66,36 @@ route.post('/login', async (req, res)=>{
             }
             res.status(401).json({code:401, message:'Wrong credentials', type:'wrong'})
         }
-    }else{
-        res.raise('internal')
+
+    }else if(req.headers['authorization']){
+        const token = req.headers['authorization'].replace('Bearer ', '')
+        const sessionCur = await db.collection('session').aggregate([
+            {$match:{token: token}},
+            {
+                $lookup:{
+                    from:'user',
+                    localField:'user',
+                    foreignField:'_id',
+                    pipeline:[
+                        {$project: {password:0}}
+                    ],
+                    as:'userInfo'
+                }
+            }
+        ])
+        const session = await sessionCur.next()
+        if(session && moment(moment.now()).isBefore(session.expires)){
+            res.json({...session.userInfo[0], token:session.token})
+            return
+        }
+        res.status(401).json({code:401, message:'Session expired', type:'expired'})
+        return
     }
+    res.raise('bad')
 })
 
 // TODO:Authorization check middleware
-route.get('/', (req, res)=>{
+route.get('/:usename?', (req, res)=>{
         db.collection('user').findOne({username: req.user.username}, {projection: {password:0}})
             .then(user => res.json(user))
             .catch(()=>res.status(500).json({code:500, message:'Internal server error', type:'internal'}))

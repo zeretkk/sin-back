@@ -18,17 +18,14 @@ app.use((req, res, next)=>{
     res.raise=(code)=>{
         res.status(exception[code.toUpperCase()].code).json(exception[code.toUpperCase()])
     }
-    console.log(req.method)
-    console.log(req.body)
-
     next()
 })
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
-
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
+
 app.use('/user', userController)
