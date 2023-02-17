@@ -65,7 +65,10 @@ route.post('/login', async (req, res)=>{
                 return
             }
             res.status(401).json({code:401, message:'Wrong credentials', type:'wrong'})
+            return
         }
+        res.status(401).json({code:401, message:'Wrong credentials', type:'wrong'})
+        return
 
     }else if(req.headers['authorization']){
         const token = req.headers['authorization'].replace('Bearer ', '')
