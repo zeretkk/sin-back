@@ -28,15 +28,15 @@ route.post('/', (req, res)=>{
                 if(result.acknowledged){
                     res.status(201).json({status:'created', id:result.insertedId})
                 }else{
-                    res.status(500).json({code:500, message:'Internal server error', type:'internal'})
+                    res.raise('inernal')
                 }
             })
             .catch(err=>{
                 if(err.code === 11000){
-                    res.status(400).json({code:400, message:'Username must be unique', type:'unique'})
+                    res.raise('unique')
                     return
                 }
-                res.status(500).json({code:500, message:'Internal server error', type:'internal'})
+                res.raise('internal')
             })
     })
 })
@@ -101,7 +101,7 @@ route.post('/login', async (req, res)=>{
 route.get('/:usename?', (req, res)=>{
         db.collection('user').findOne({username: req.user.username}, {projection: {password:0}})
             .then(user => res.json(user))
-            .catch(()=>res.status(500).json({code:500, message:'Internal server error', type:'internal'}))
+            .catch(()=>res.raise('internal'))
 
 })
 module.exports = route
