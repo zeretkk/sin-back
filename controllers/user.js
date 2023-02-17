@@ -90,6 +90,8 @@ route.post('/login', async (req, res)=>{
         if(session && moment(moment.now()).isBefore(session.expires)){
             res.json({...session.userInfo[0], token:session.token})
             return
+        }else if(session){
+            await db.collection('session').deleteOne({token: session.token})
         }
         res.status(401).json({code:401, message:'Session expired', type:'expired'})
         return
