@@ -14,6 +14,7 @@ route.post('/', (req, res)=>{
         const user = {
             name: req.body.name,
             username: req.body.username,
+            email:req.body.email,
             password: hash,
             bio:'',
             cover:'',

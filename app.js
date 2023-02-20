@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const userController = require('./controllers/user')
 const exception = require('./helpers/exceptions')
