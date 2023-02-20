@@ -9,6 +9,21 @@ npm install
 #or
 npm i
 ```
+Set environment variables
+```shell
+#windows systems
+setx DB_PASS <password>
+setx DB_USER <username>
+
+#linux sistems
+export DB_USER=username
+export DB_PASS=password
+```
+Or create an .env file in project root directory that contains:
+```shell
+DB_USER=username
+DB_PASS=password
+```
 
 ## Usage
 To run app listener:
