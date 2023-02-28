@@ -15,7 +15,7 @@ Set environment variables
 setx DB_PASS <password>
 setx DB_USER <username>
 
-#linux sistems
+#linux systems
 export DB_USER=username
 export DB_PASS=password
 ```
