@@ -1,5 +1,3 @@
-const db = require('./mongo')
-const moment = require('moment/moment')
 const jwt = require('jsonwebtoken')
 const Token = require('../models/token')
 

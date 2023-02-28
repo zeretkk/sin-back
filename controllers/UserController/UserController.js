@@ -1,9 +1,5 @@
 const UserService = require('./user.service')
-const { deleteToken, generateJWT, writeToken } = require('../../helpers/auth')
-const { User } = require('../../models/user')
-const { HTTPException } = require('../../helpers/exceptions')
-const bcrypt = require('bcrypt')
-const UserDto = require('./User.dto')
+
 class UserController {
     async register(req, res, next) {
         try {
