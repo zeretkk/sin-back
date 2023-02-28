@@ -59,6 +59,16 @@ class UserService {
         await writeToken(user._id, tokens.refreshToken)
         return { ...tokens, user: userDto }
     }
+    async getByUsername(username) {
+        if (!username) {
+            throw HTTPException.BadRequest('Unknown username')
+        }
+        const found = await User.findOne({ username: username })
+        if (!found) {
+            throw HTTPException.NotFound()
+        }
+        return new UserDto(found)
+    }
 }
 
 module.exports = new UserService()

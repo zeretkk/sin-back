@@ -15,6 +15,9 @@ class HTTPException extends Error {
     static Internal(errors) {
         return new HTTPException(500, 'Internal Server error', errors)
     }
+    static NotFound() {
+        return new HTTPException(404, 'Resource Not Found')
+    }
 }
 
 function exceptionMiddleware(err, req, res, next) {
