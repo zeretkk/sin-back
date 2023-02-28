@@ -2,23 +2,7 @@ const db = require('./mongo')
 const moment = require('moment/moment')
 const jwt = require('jsonwebtoken')
 const Token = require('../models/token')
-async function checkToken(token) {
-    const session = await db.collection('session').findOne({ token: token })
-    if (session && moment().isBefore(moment(session.expires))) {
-        return session.user
-    } else if (session) {
-        await db.collection('session').deleteOne(session)
-    }
-    return false
-}
-function generateToken(n) {
-    var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    var token = ''
-    for (var i = 0; i < n; i++) {
-        token += chars[Math.floor(Math.random() * chars.length)]
-    }
-    return token
-}
+
 function generateJWT(payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
         expiresIn: '30m',
@@ -30,8 +14,6 @@ function generateJWT(payload) {
 }
 async function writeToken(userId, token) {
     const presToken = await Token.findOne({ user: userId })
-    console.log(presToken)
-    console.log(presToken)
     if (presToken) {
         presToken.refreshToken = token
         return presToken.save()
@@ -41,5 +23,16 @@ async function writeToken(userId, token) {
         refreshToken: token,
     })
 }
+function deleteToken(token) {
+    return Token.deleteOne({ refreshToken: token })
+}
+function validateToken(token, type) {
+    if (type === 'access') {
+        return jwt.verify(token, process.env.JWT_ACCESS_SECRET)
+    } else if (type === 'refresh') {
+        return jwt.verify(token, process.env.JWT_REFRESH_SECRET)
+    }
+    return null
+}
 
-module.exports = { checkToken, generateToken, generateJWT, writeToken }
+module.exports = { generateJWT, writeToken, deleteToken, validateToken }

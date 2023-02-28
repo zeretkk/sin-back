@@ -12,7 +12,5 @@ const userSchema = new mongoose.Schema({
     links: [String],
     createdAt: { type: Date, default: Date.now },
 })
-const User = mongoose.model('User', userSchema)
 
-module.exports.default = User
-module.exports = { User }
+module.exports = mongoose.model('User', userSchema)
