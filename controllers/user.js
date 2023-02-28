@@ -3,101 +3,35 @@ const db = require('../helpers/mongo')
 const bcrypt = require("bcrypt");
 const moment = require('moment')
 const {generateToken} = require("../helpers/auth");
+const {User} = require("../models/user");
 
 
 route.post('/', (req, res)=>{
-    bcrypt.hash(req.body.password, 10, (err, hash)=>{
+    bcrypt.hash(req.body.password, 10,  (err, hash)=>{
         if(err) {
             res.status(500).json({code: 500, message: 'Crypting error', type: 'internal'})
             return
         }
-        const user = {
+        const user = new User({
             name: req.body.name,
             username: req.body.username,
             email:req.body.email,
             password: hash,
-            bio:'',
-            cover:'',
-            volume:0,
-            sold:0,
-            followers:0,
-            links: [],
-            createdAt: moment(moment.now()).toDate()
-        }
-        db.collection('user').insertOne(user)
-            .then(result=>{
-                if(result.acknowledged){
-                    res.status(201).json({status:'created', id:result.insertedId})
-                }else{
-                    res.raise('inernal')
-                }
+        })
+        user.save()
+            .then(saved=>{
+                res.status(201).json({"user": saved.username})
             })
             .catch(err=>{
                 if(err.code === 11000){
                     res.raise('unique')
-                    return
                 }
-                res.raise('internal')
             })
     })
 })
 
 route.post('/login', async (req, res)=>{
-    if(req.body.username && req.body.password){
-       const user = await db.collection('user').findOne({username:req.body.username})
-        if(user){
-            if(bcrypt.compareSync(req.body.password, user.password)) {
-                const session = await db.collection('session').findOne({user: user._id})
-                const userObj = {...user}
-                delete userObj['password']
-                if(session && moment(moment.now()).isBefore(session.expires)){
-                    res.json({...userObj, token:session.token})
-                    return
-                }else if(session){
-                    await db.collection('session').deleteOne(session)
-                }
-                const newSession = {
-                    token: generateToken(45),
-                    expires: moment(moment().add(24, 'hours')).toDate(),
-                    user: user._id
-                }
-                await db.collection('session').insertOne(newSession)
-                res.json({...userObj, token:newSession.token})
-                return
-            }
-            res.status(401).json({code:401, message:'Wrong credentials', type:'wrong'})
-            return
-        }
-        res.status(401).json({code:401, message:'Wrong credentials', type:'wrong'})
-        return
 
-    }else if(req.headers['authorization']){
-        const token = req.headers['authorization'].replace('Bearer ', '')
-        const sessionCur = await db.collection('session').aggregate([
-            {$match:{token: token}},
-            {
-                $lookup:{
-                    from:'user',
-                    localField:'user',
-                    foreignField:'_id',
-                    pipeline:[
-                        {$project: {password:0}}
-                    ],
-                    as:'userInfo'
-                }
-            }
-        ])
-        const session = await sessionCur.next()
-        if(session && moment(moment.now()).isBefore(session.expires)){
-            res.json({...session.userInfo[0], token:session.token})
-            return
-        }else if(session){
-            await db.collection('session').deleteOne({token: session.token})
-        }
-        res.status(401).json({code:401, message:'Session expired', type:'expired'})
-        return
-    }
-    res.raise('bad')
 })
 
 // TODO:Authorization check middleware
