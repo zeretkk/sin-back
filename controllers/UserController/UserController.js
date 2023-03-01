@@ -1,5 +1,4 @@
 const UserService = require('./user.service')
-const { HTTPException } = require('../../helpers/exceptions')
 
 class UserController {
     async register(req, res, next) {
@@ -52,7 +51,6 @@ class UserController {
     }
     async getByUsername(req, res, next) {
         try {
-            console.log(req.params)
             const username = req.params.username
             const userData = await UserService.getByUsername(username)
             res.json(userData)

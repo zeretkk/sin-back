@@ -21,7 +21,6 @@ class HTTPException extends Error {
 }
 
 function exceptionMiddleware(err, req, res, next) {
-    console.log(err)
     if (err instanceof HTTPException) {
         if (err.status === 401) {
             res.clearCookie('refreshToken')

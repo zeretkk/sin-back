@@ -16,7 +16,15 @@ const port = 3001
 app.use(exJson())
 app.use(cookieParser())
 app.use(bodyParser.json())
-app.use(cors())
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            return callback(null, true)
+        },
+        optionsSuccessStatus: 200,
+        credentials: true,
+    })
+)
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
