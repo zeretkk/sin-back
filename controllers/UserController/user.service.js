@@ -56,8 +56,7 @@ class UserService {
         const user = await User.findOne({ username: userData.username })
         const userDto = new UserDto(user)
         const tokens = generateJWT({ ...userDto })
-        await writeToken(user._id, tokens.refreshToken)
-        return { ...tokens, user: userDto }
+        return { ...tokens, user: userDto, refreshToken }
     }
     async getByUsername(username) {
         if (!username) {
