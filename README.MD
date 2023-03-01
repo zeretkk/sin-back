@@ -14,15 +14,21 @@ Set environment variables
 #windows systems
 setx DB_PASS <password>
 setx DB_USER <username>
+setx JWT_ACCESS_SECRET <secret>
+setx JWT_REFRESH_SECRET <secret>
 
 #linux systems
 export DB_USER=username
 export DB_PASS=password
+export JWT_ACCESS_SECRET <secret>
+export JWT_REFRESH_SECRET <secret>
 ```
 Or create an .env file in project root directory that contains:
 ```shell
 DB_USER=username
 DB_PASS=password
+JWT_ACCESS_SECRET=secret
+JWT_REFRESH_SECRET=secret
 ```
 
 ## Usage
