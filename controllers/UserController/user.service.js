@@ -51,6 +51,9 @@ class UserService {
         const userData = validateToken(refreshToken, 'refresh')
         const savedToken = await Token.findOne({ refreshToken: refreshToken })
         if (!userData || !savedToken) {
+            if (!userData) {
+                savedToken.deleteOne({ refreshToken })
+            }
             throw HTTPException.Unauthorized()
         }
         const user = await User.findOne({ username: userData.username })
