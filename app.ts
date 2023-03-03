@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import mongoose from "mongoose";
 import {Secret} from "jsonwebtoken";
 import UserRouter from './Controllers/routes'
+import {exceptionHandler} from "./helpers/exceptions";
 dotenv.config();
 interface IProcessEnv{
     DB_USER: String
@@ -31,6 +32,7 @@ app.use( cors({
 app.use(cookieParser())
 app.use(json())
 app.use('/user',UserRouter)
+app.use(exceptionHandler)
 app.listen(port, async () => {
     await mongoose.connect(
         `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@sinc0.s7xsi06.mongodb.net/sin?retryWrites=true&w=majority`
