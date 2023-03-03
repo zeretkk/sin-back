@@ -1,4 +1,4 @@
-import express, { Express, json } from 'express';
+import express, {Express, json, Request, Response} from 'express';
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv';
@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import {Secret} from "jsonwebtoken";
 import UserRouter from './Controllers/routes'
 import {exceptionHandler} from "./helpers/exceptions";
+import bodyParser from "body-parser";
 dotenv.config();
 interface IProcessEnv{
     DB_USER: String
@@ -21,7 +22,9 @@ declare global {
 
 const app: Express = express();
 const port = 3001
-
+app.use(cookieParser())
+app.use(bodyParser.json())
+app.use(json())
 app.use( cors({
     origin: function (origin, callback) {
         return callback(null, true)
@@ -29,8 +32,6 @@ app.use( cors({
     optionsSuccessStatus: 200,
     credentials: true,
 }))
-app.use(cookieParser())
-app.use(json())
 app.use('/user',UserRouter)
 app.use(exceptionHandler)
 app.listen(port, async () => {
