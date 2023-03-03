@@ -2,8 +2,8 @@ import {Response, Request, NextFunction} from "express";
 
 class HTTPException extends Error{
     public status :number
-    public errors :[]
-    constructor(status :number, message :string, errors :[]=[]) {
+    public errors :any[]
+    constructor(status :number, message :string, errors :any[]=[]) {
         super(message);
         this.status = status
         this.errors = errors
@@ -11,7 +11,7 @@ class HTTPException extends Error{
     static Unauthorized() :HTTPException{
         return new HTTPException(401, 'Unauthorized')
     }
-    static BadRequest(message :string, errors :[]=[]) :HTTPException{
+    static BadRequest(message :string, errors :any[]=[]) :HTTPException{
         return new HTTPException(400, message, errors)
     }
     static Internal(errors :[]=[]) :HTTPException{

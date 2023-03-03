@@ -27,7 +27,7 @@ export default class UserService{
             // @ts-ignore
             switch (e?.code){
                 case 11000:
-                    throw HTTPException.BadRequest("Username and Email must be unique")
+                    throw HTTPException.BadRequest("Username and Email must be unique", ['unique'])
                 default:
                     throw HTTPException.Internal()
             }
