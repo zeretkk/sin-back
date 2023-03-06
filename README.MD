@@ -37,6 +37,9 @@ To run app listener:
 # Will restart the application when files are updated
 npm run dev
 
+#build typescript
+npm run build  
+
 #Standard application launch option
 npm start
 ```
